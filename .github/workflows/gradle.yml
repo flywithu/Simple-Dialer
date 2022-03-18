@@ -63,26 +63,14 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '11'
-      - name: Build release APK(launcher)
-        run: bash ./gradlew assembleLauncherRelease --stacktrace
-      - name: Build release APK(nolauncher)
-        run: bash ./gradlew assemblenoLauncherRelease --stacktrace
+      - name: Build release APK
+        run: bash ./gradlew assembleRelease --stacktrace
 
       - name: Sign(launcher)
         uses: r0adkll/sign-android-release@v1
-        id: launcher_app
+        id: myapp
         with:
-          releaseDirectory: app/build/outputs/apk/launcher/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-
-      - name: Sign(nolauncher)
-        uses: r0adkll/sign-android-release@v1
-        id: nolauncher_app
-        with:
-          releaseDirectory: app/build/outputs/apk/nolauncher/release
+          releaseDirectory: app/build/outputs/apk/release
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
@@ -93,8 +81,7 @@ jobs:
         with:
           name: apk
           path: |
-              ${{steps.nolauncher_app.outputs.signedReleaseFile}}
-              ${{steps.launcher_app.outputs.signedReleaseFile}}
+              ${{steps.myapp.outputs.signedReleaseFile}}
           if-no-files-found: error
   publish:
     name: Release APK
@@ -123,6 +110,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: launcher/release/app-launcher-release-unsigned-signed.apk
-          asset_name: visualbankproxy.apk
+          asset_path: release/app-release-unsigned-signed.apk
+          asset_name: simple_dialer.apk
           asset_content_type: application/zip
