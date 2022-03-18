@@ -2,6 +2,7 @@ package com.simplemobiletools.dialer.services
 
 import android.telecom.Call
 import android.telecom.InCallService
+import android.util.Log
 import com.simplemobiletools.dialer.App
 import com.simplemobiletools.dialer.activities.CallActivity
 import com.simplemobiletools.dialer.helpers.CallManager
@@ -33,6 +34,14 @@ class CallService : InCallService() {
         CallManager.inCallService = this
         CallManager.registerCallback(callListener)
         callNotificationManager.setupNotification()
+        CallManager.getCallContact(applicationContext) { contact ->
+            if(contact?.name.equals(contact?.number))
+            {
+                CallManager.reject();
+            }
+
+        }
+
     }
 
     override fun onCallRemoved(call: Call) {
