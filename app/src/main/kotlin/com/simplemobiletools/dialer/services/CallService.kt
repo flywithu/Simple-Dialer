@@ -42,13 +42,21 @@ class CallService : InCallService() {
             Call.Details.DIRECTION_UNKNOWN
         }
 
-        if(callDirection!=Call.Details.DIRECTION_OUTGOING) {
+//        android.util.Log.d("SEUNG",callDirection.toString())
+        if (callDirection != Call.Details.DIRECTION_OUTGOING) {
 
-                CallManager.getCallContact(applicationContext) { contact ->
-//                    android.util.Log.d("SEUNG",contact?.photoUri.toString())
-                    if (contact?.name.equals(contact?.number)) {
-                        CallManager.reject();
-                    }
+            CallManager.getCallContact(applicationContext) { contact ->
+
+                val needToDisconnect: Boolean = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    (contact?.name.equals(contact?.number))
+                } else {
+                    (contact?.number!!.length>3)
+                }
+
+
+                if (needToDisconnect) {
+                    CallManager.reject();
+                }
 
             }
         }
