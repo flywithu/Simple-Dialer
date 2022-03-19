@@ -1,5 +1,6 @@
 package com.simplemobiletools.dialer.services
 
+import android.os.Build
 import android.telecom.Call
 import android.telecom.InCallService
 import android.util.Log
@@ -34,14 +35,23 @@ class CallService : InCallService() {
         CallManager.inCallService = this
         CallManager.registerCallback(callListener)
         callNotificationManager.setupNotification()
-        CallManager.getCallContact(applicationContext) { contact ->
-            if(contact?.name.equals(contact?.number))
-            {
-                CallManager.reject();
-            }
 
+        val callDirection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            CallManager.call!!.details.callDirection
+        } else {
+            Call.Details.DIRECTION_UNKNOWN
         }
 
+        if(callDirection!=Call.Details.DIRECTION_OUTGOING) {
+
+                CallManager.getCallContact(applicationContext) { contact ->
+//                    android.util.Log.d("SEUNG",contact?.photoUri.toString())
+                    if (contact?.name.equals(contact?.number)) {
+                        CallManager.reject();
+                    }
+
+            }
+        }
     }
 
     override fun onCallRemoved(call: Call) {
